@@ -57,17 +57,9 @@ NetTransPackage* createNetTransPackage(uint16_t leng,const uint8_t *data) {
 	NetTransPackage* pack = (NetTransPackage*)malloc(sizeof(NetTransPackage)+leng);
     PUT_UINT16_BE(leng,pack->Len)
     std::vector<uint8_t> list(leng);
-    for (size_t i = 0; i < leng; i++)
-    {
-        printf("%02x ", data[i]);
-        list[i] = data[i];
-
-    }
-    printf("\n");
     uint16_t crc16 = crc16ForModbus(list);
     
     PUT_UINT16_BE(crc16, pack->CRC)
-    printf("createNetTransPackage:pack->CRC=%02x%02x crc16=%04x\n", pack->CRC[0], pack->CRC[1], crc16);
     memcpy(pack->Data,data,leng);
     return pack;
 }
@@ -77,14 +69,7 @@ int verification(NetTransPackage* pack) {
     uint16_t length = 0;
     GET_UINT16_BE(length, pack->Len);
     std::vector<uint8_t> list(length);
-    for (size_t i = 0; i < length; i++)
-    {
-        printf("%02x ", pack->Data[i]);
-        list[i] = pack->Data[i];
-    }
-    printf("\n");
     uint16_t crc16 = crc16ForModbus(list);
-    printf("verification: pack->CRC=%02x%02x crc16=%04x\n", pack->CRC[0],pack->CRC[1], crc16);
     if (CMP_UINT16(crc16, pack->CRC)) {
         return 1;
     }

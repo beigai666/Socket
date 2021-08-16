@@ -11,12 +11,10 @@ UdpServer::UdpServer() {
         
         exit(1);
     }
-
     if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char*)&broadcast, sizeof broadcast) == -1) {
         perror("setsockopt (SO_BROADCAST)");
         exit(1);
     }
-
     /* bind local server port */
     servAddr.sin_family = AF_INET;
     servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -28,21 +26,56 @@ UdpServer::UdpServer() {
     }
 
     printf("waiting for data on port UDP %u\n", LOCAL_SERVER_PORT);
+    InitializeCriticalSection(&Mutex);
+    InitializeConditionVariable(&g_emptyCond);
+    //struct timeval tv_out;
+    //tv_out.tv_sec = 10;//µÈ´ý10Ãë
+    //tv_out.tv_usec = 0;
+    //setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv_out, sizeof(tv_out));
 }
+
+
 
 void UdpServer::run() {
-    while (1) {
-        if (tg > 0) {
-            const char* str = "plokmijnuhbygvtfcrdxeszwaq,ol.p;/";
-            int leng = strlen(str) + 1;
-            NetTransPackage* package = createNetTransPackage(leng, (uint8_t*)str);
-            udp_write((char*)package, sizeof(NetTransPackage) + leng);
-            deletePackage(package);
-        }
-
-        Sleep(1000);
+    while (true)
+    {
+        NetTask* task = get_task();
+        const char* str = "plokmijnuhbygvtfcrdxeszwaq,ol.p;/";
+        int leng = strlen(str) + 1;
+        NetTransPackage* package = createNetTransPackage(leng, (uint8_t*)str);
+        printf("write start:\n");
+        udp_write((char*)package, sizeof(NetTransPackage) + leng, task->addr);
+        printf("write end:\n");
+        deletePackage(package);
+        free(task);
     }
+
 }
+
+int UdpServer::add_task(NetTask* task) {
+    EnterCriticalSection(&Mutex);
+    if (tasks.size() == 0) {
+        WakeConditionVariable(&g_emptyCond);
+    }
+    tasks.insert(std::pair<void*, NetTask*>(task,task));
+    
+    LeaveCriticalSection(&Mutex);
+    return 0;
+}
+
+NetTask* UdpServer::get_task() {
+    NetTask* task = NULL;
+    EnterCriticalSection(&Mutex);
+    if (tasks.size() == 0) {
+        SleepConditionVariableCS(&g_emptyCond, &Mutex, INFINITE);
+    }
+    auto i = tasks.begin();
+    task = i->second;
+    tasks.erase(i);
+    LeaveCriticalSection(&Mutex);
+    return task;
+}
+
 
 void UdpServer::start() {
     th = new std::thread(&UdpServer::run, this);
@@ -51,14 +84,23 @@ void UdpServer::start() {
     int num = 0;
     while (1) {
         memset(buf, 0,1500);
+        printf("read start \n");
         int size =udp_read((char*)buf, 1500);
+        printf("read end \n");
         NetTransPackage * package =(NetTransPackage*)buf;
         /* print received message */
         printf("num=%d server: from % s : UDP % u : % s \n",num,inet_ntoa(clieAddr.sin_addr),ntohs(clieAddr.sin_port), package->Data);
         printf("verification=%d\n", verification(package));
+        NetTask* task = (NetTask*)malloc(sizeof(NetTask));
+        memset(task, 0, sizeof(NetTask));
+        task->addr = clieAddr;
+        add_task(task);
         tg++;
         num++;
+        //read();
     }
     free(buf);
     buf = NULL;
 }
+
+

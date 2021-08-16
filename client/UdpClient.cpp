@@ -5,23 +5,33 @@ void UdpClient::start() {
     servAddr.sin_family = AF_INET;
     servAddr.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
     servAddr.sin_port = htons(REMOTE_SERVER_PORT);
-    void* buf = malloc(1500);
+    struct timeval tv_out;
+    tv_out.tv_sec = 2;//µÈ´ý10Ãë
+    tv_out.tv_usec = 0;
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv_out, sizeof(tv_out));
+    char* buf =(char*) malloc(1500);
     int num = 0;
     while (true)
     {
-        const char* str = "qazwsxedcrfvtgbyhnujmik,ol.p;/";
-        int leng = strlen(str) + 1;
-        NetTransPackage *package =createNetTransPackage(leng, (uint8_t*)str);
-        udp_write((char*)package, sizeof(NetTransPackage)+leng);
+        printf("*********************start********************8\n");
+        servAddr.sin_family = AF_INET;
+        servAddr.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+        servAddr.sin_port = htons(REMOTE_SERVER_PORT);
+        sprintf(buf,"str=%s,num=%d\n","qazwsxedc",num);
+        printf("buf=%s",buf);
+        NetTransPackage *package =createNetTransPackage(strlen(buf) +1, (uint8_t*)buf);
+        udp_write((char*)package, sizeof(NetTransPackage)+ strlen(buf) + 1);
         deletePackage(package);
         memset(buf,0,1500);
+        printf("staer read\n");
         int size = udp_read((char*)buf, 1500);
+        printf("read end\n");
         package = (NetTransPackage*)buf;
-        printf("num=%d verification:%d\n reviec data:%s  \n",num, verification(package), package->Data);
-        Sleep(1000);
+        printf("verification: % d reviec data : % s  \n", verification(package), package->Data);
         num++;
+        printf("*********************end********************8\n");
+        Sleep(1000);
     }
-
 }
 
 UdpClient::UdpClient() {
