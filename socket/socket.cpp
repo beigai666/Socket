@@ -1,67 +1,81 @@
 ﻿// socket.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
-
+#include <stdio.h>
 #include <iostream>
 #include <thread>
-
-
-class  MyClass{
-
-    int i;
-    int j;
+#include <map>
+#include <string>
+#include <Windows.h>
+#include "Array.h"
+#include "HeapArray.h"
+class MyClass
+{
+	std::thread* th;
 public:
-	 MyClass();
-	~ MyClass();
-    std::thread* t;
-    void run(int i) {
+	HANDLE m_Event;
+	int num;
+	MyClass();
+	
+	void run() {
+		while (true)
+		{
+			std::cout << "SetEvent" << std::endl;
+			SetEvent(m_Event);
+			Sleep(1000);
+		}
+	}
+	~MyClass();
+	void wait() {
+		//执行到此处，等待500毫秒直到超时或 SetEvent(m_Event);被调用 
+		//如果500毫秒内SetEvent(m_Event);被调用，500毫秒后才返回到此处运行
+		int res = WaitForSingleObject(m_Event, INFINITE);
+		switch (res)
+		{
+		case WAIT_OBJECT_0:
+			std::cout << "WAIT_OBJECT_0"<<std::endl;
+			// m_Event所代表的进程在500毫秒内结束
+			break;
 
+		case WAIT_TIMEOUT:
+			// 等待时间超过5秒
+			std::cout << "WAIT_TIMEOUT" << std::endl;
+			break;
 
-            std::cout << "i=" << i << std::endl;
-            std::cout << "j=" << j << std::endl;
-        
-    }
-   
-    void join() {
-        t->join();
-    }
-
+		case WAIT_FAILED:
+			// 函数调用失败，比如传递了一个无效的句柄
+			std::cout << "WAIT_FAILED" << std::endl;
+			break;
+		}
+	}
 private:
 
 };
 
- MyClass:: MyClass()
+MyClass::MyClass()
 {
-     std::cout << "MyClass!\n";
-     t = new std::thread(&MyClass::run,this,10);
+	num = 0;
+	m_Event = CreateEvent(NULL, FALSE, FALSE, NULL);
+	th = new std::thread(&MyClass::run, this);
 }
 
- MyClass::~ MyClass()
+MyClass::~MyClass()
 {
 }
-
-
- MyClass g_my;
-
 int main()
 {
-
-    //MyClass my;
-    //my.join();
-    g_my.join();
-    uint16_t crc16 = 0xffff;
-    crc16 >>= 8;
-    std::cout <<std::hex<< crc16 << std::endl;
-    std::cout << "Hello World!\n";
+	
+	
+	Array<std::string, 10>arr;
+	arr.set(0,"hello");
+	arr.set(1, "hhhhhh");
+	for (int i = 0; i < 10;i++) {
+		std::cout << "arr[" << i << "]=" << arr[i] << std::endl;
+	}
+	HeapArray<int>* heap = HeapArray<int>::NewInstance(10);
+	
+	for (int i = 0; i < 10; i++) {
+		heap->set(i, i);
+		std::cout << "heap[" << i << "]=" << (*heap)[i] << std::endl;
+	}
 }
 
-
-// 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
-// 调试程序: F5 或调试 >“开始调试”菜单
-
-// 入门使用技巧: 
-//   1. 使用解决方案资源管理器窗口添加/管理文件
-//   2. 使用团队资源管理器窗口连接到源代码管理
-//   3. 使用输出窗口查看生成输出和其他消息
-//   4. 使用错误列表窗口查看错误
-//   5. 转到“项目”>“添加新项”以创建新的代码文件，或转到“项目”>“添加现有项”以将现有代码文件添加到项目
-//   6. 将来，若要再次打开此项目，请转到“文件”>“打开”>“项目”并选择 .sln 文件

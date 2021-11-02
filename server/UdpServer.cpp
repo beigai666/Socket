@@ -40,13 +40,17 @@ void UdpServer::run() {
     while (true)
     {
         NetTask* task = get_task();
-        const char* str = "plokmijnuhbygvtfcrdxeszwaq,ol.p;/";
+        printf("get task=%p\n", task);
+
+        const char* str = "hello";
         int leng = strlen(str) + 1;
-        NetTransPackage* package = createNetTransPackage(leng, (uint8_t*)str);
-        printf("write start:\n");
-        udp_write((char*)package, sizeof(NetTransPackage) + leng, task->addr);
-        printf("write end:\n");
-        deletePackage(package);
+        //NetTransPackage* package = createNetTransPackage(leng, (uint8_t*)str);
+        //printf("write start:\n");
+        udp_write((char*)str, 5, task->addr);
+        //printf("write end:\n");
+
+        //deletePackage(package);
+
         free(task);
     }
 
@@ -83,18 +87,29 @@ void UdpServer::start() {
     void* buf = malloc(1500);
     int num = 0;
     while (1) {
+        
+
         memset(buf, 0,1500);
         printf("read start \n");
+        int nNetTimeout = 2000;
+        if (SOCKET_ERROR == setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&nNetTimeout, sizeof(int)))
+        {
+            printf("Set Ser_RecTIMEO error !\r\n");
+        }
         int size =udp_read((char*)buf, 1500);
+        if (size == -1) {
+            continue;
+        }
         printf("read end \n");
-        NetTransPackage * package =(NetTransPackage*)buf;
+        //NetTransPackage * package =(NetTransPackage*)buf;
         /* print received message */
-        printf("num=%d server: from % s : UDP % u : % s \n",num,inet_ntoa(clieAddr.sin_addr),ntohs(clieAddr.sin_port), package->Data);
-        printf("verification=%d\n", verification(package));
+        printf("num=%d server: from % s : UDP % u : % s \n",num,inet_ntoa(clieAddr.sin_addr),ntohs(clieAddr.sin_port), buf);
+        //printf("verification=%d\n", verification(package));
         NetTask* task = (NetTask*)malloc(sizeof(NetTask));
-        memset(task, 0, sizeof(NetTask));
-        task->addr = clieAddr;
+            memset(task, 0, sizeof(NetTask));
+            task->addr = clieAddr;
         add_task(task);
+      
         tg++;
         num++;
         //read();
