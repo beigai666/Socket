@@ -1,3 +1,0 @@
-﻿  socket.cpp
-D:\test\student\socket\socket\Array.h(36): warning C4715: “Array<std::basic_string<char,std::char_traits<char>,std::allocator<char> >,10>::set”: 不是所有的控件路径都返回值
-  socket.vcxproj -> D:\test\student\socket\x64\Debug\socket.exe
