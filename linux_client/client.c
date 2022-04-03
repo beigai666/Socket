@@ -32,11 +32,14 @@ int main()
 
             free(pm);
         }
+        //char buf[2] = { 'A',0};
+        //TcpClient_SendOOB(client, buf);
     }
-
+    sleep(1);
+    TcpClient_Del(client);
     getchar();
 
-    TcpClient_Del(client);
+    
 
     return 0;
 }

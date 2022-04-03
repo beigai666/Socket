@@ -1,1 +1,0 @@
-g++ -o "/root/projects/linux_client/bin/x64/Debug/linux_client.out" -Wl,--no-undefined -Wl,-z,relro -Wl,-z,now -Wl,-z,noexecstack /root/projects/linux_client/obj/x64/Debug/client.o /root/projects/linux_client/obj/x64/Debug/tcp_client.o /root/projects/linux_client/obj/x64/Debug/message.o /root/projects/linux_client/obj/x64/Debug/msg_parser.o

@@ -60,6 +60,17 @@ int TcpClient_SendRaw(TcpClient* client, char* buf, int length)
     return ret;
 }
 
+int TcpClient_SendOOB(TcpClient* client, char* buf)
+{
+    int ret = 0;
+    Client* c = (Client*)client;
+    if (c && buf)
+    {
+        ret = (send(c->fd, buf, 1, MSG_OOB) != -1);
+    }
+    return ret;
+}
+
 Message* TcpClient_RecvMsg(TcpClient* client) {
     Message* msg = NULL;
     Client* c = (Client*)client;
@@ -77,6 +88,17 @@ int TcpClient_RecvRaw(TcpClient* client, char* buf, int length)
     if (c)
     {
         ret = recv(c->fd, buf, length, 0);
+    }
+    return ret;
+}
+
+int TcpClient_RecvOOB(TcpClient* client, char* buf)
+{
+    int ret = 0;
+    Client* c = (Client*)client;
+    if (c)
+    {
+        ret = recv(c->fd, buf, 2, MSG_OOB);
     }
     return ret;
 }
@@ -134,6 +156,8 @@ void TcpClient_Close(TcpClient* client)
     }
 }
 
+
+
 void TcpClient_Del(TcpClient* client)
 {
     Client* c = (Client*)client;
@@ -170,3 +194,16 @@ void* TcpClient_GetData(TcpClient* client)
     return ret;
 }
 
+int TcpClient_Available(TcpClient* client)
+{
+    static char c_temp[1024 * 2] = { 0 };
+    int ret = -1;
+    Client* c = (Client*)client;
+
+    if (c)
+    {
+        ret = recv(c->fd, c_temp, sizeof(c_temp), MSG_PEEK | MSG_DONTWAIT);
+    }
+
+    return ret;
+}

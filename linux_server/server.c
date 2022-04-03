@@ -13,30 +13,33 @@ void EventListener(TcpClient* client, int evt)
     }
     else if (evt == EVT_DATA)
     {
-        Message* m = TcpClient_RecvMsg(client);
+        if (TcpClient_Available(client) > 0){
+            Message* m = TcpClient_RecvMsg(client);
 
-        if (m)
-        {
-            char* s = TcpClient_GetData(client);
-
-            if (m->index == 0)
+            if (m)
             {
-                s = malloc(m->total + 1);
+                char* s = TcpClient_GetData(client);
 
-                TcpClient_SetData(client, s);
+                if (m->index == 0)
+                {
+                    s = malloc(m->total + 1);
+
+                    TcpClient_SetData(client, s);
+                }
+
+                strcpy(s + m->index, m->payload);
+
+                if ((m->index + 1) == m->total)
+                {
+                    printf("Data: %s\n", s);
+
+                    free(s);
+                }
+
+                free(m);
             }
-
-            strcpy(s + m->index, m->payload);
-
-            if ((m->index + 1) == m->total)
-            {
-                printf("Data: %s\n", s);
-
-                free(s);
-            }
-
-            free(m);
         }
+        
     }
     else if (evt == EVT_CLOSE)
     {

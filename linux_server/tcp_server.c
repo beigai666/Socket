@@ -45,6 +45,7 @@ int TcpServer_Start(TcpServer* server, int port, int max)
     {
         struct sockaddr_in saddr = { 0 };
         s->fd = socket(PF_INET, SOCK_STREAM, 0);
+        printf("server fd = %d\n", s->fd);
         s->valid = (s->fd != -1);
         saddr.sin_family = AF_INET;
         saddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -91,12 +92,21 @@ int TcpServer_IsValid(TcpServer* server)
     return server ? ((Server*)server)->valid : 0;
 }
 
-static int SelectHandler(Server* s, fd_set* rset, fd_set* reads, int num, int max)
+static int SelectHandler(Server* s, fd_set* rset, fd_set* reads, fd_set* except, int num, int max)
 {
     int ret = max;
     int i = 0;
     for (i = 0; i <= max; i++)
     {
+        if (FD_ISSET(i, except))
+        {
+            if (i != s->fd)
+            {
+                char buf[2] = { 0 };
+                TcpClient_RecvOOB(s->client[i], buf);
+                printf("oob=%s\n",buf);
+            }
+        }
         if (FD_ISSET(i, rset))
         {
             int index = i;
@@ -105,12 +115,12 @@ static int SelectHandler(Server* s, fd_set* rset, fd_set* reads, int num, int ma
             {
                 struct sockaddr_in caddr = { 0 };
                 socklen_t asize = sizeof(caddr);
-                int fd = accept(s->fd, &caddr, &asize);
-                if (fd > -1)
+                index = accept(s->fd, &caddr, &asize);
+                if (index > -1)
                 {
-                    FD_SET(fd, reads);
+                    FD_SET(index, reads);
                     ret = (index > max) ? index : max;
-                    s->client[index] = TcpClient_From(fd);
+                    s->client[index] = TcpClient_From(index);
                     event = EVT_CONN;
                 }
             }
@@ -147,6 +157,7 @@ void TcpServer_DoWork(TcpServer* server)
         int num = 0;
         fd_set reads = { 0 };
         fd_set rset = { 0 };
+        fd_set except = { 0 };
         struct timeval timeout = { 0 };
         FD_ZERO(&reads);
         FD_SET(s->fd, &reads);
@@ -154,12 +165,13 @@ void TcpServer_DoWork(TcpServer* server)
         while (s->valid)
         {
             rset = reads;
+            except = reads;
             timeout.tv_sec = 0;
             timeout.tv_usec = 10000;
-            select(max + 1, &rset, NULL, NULL, &timeout);
+            num = select(max + 1, &rset, NULL, &except, NULL);
             if (num > 0)
             {
-                max = SelectHandler(s, &rset, &reads, num, max);
+                max = SelectHandler(s, &rset, &reads, &except, num, max);
             }
         }
     }
