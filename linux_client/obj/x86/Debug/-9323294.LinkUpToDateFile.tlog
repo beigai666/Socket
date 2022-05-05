@@ -1,1 +1,0 @@
-g++ -o "/home/znf/projects/linux_client/bin/x86/Debug/linux_client.out" -Wl,--no-undefined -Wl,-z,relro -Wl,-z,noexecstack /home/znf/projects/linux_client/obj/x86/Debug/client.o /home/znf/projects/linux_client/obj/x86/Debug/tcp_client.o /home/znf/projects/linux_client/obj/x86/Debug/message.o /home/znf/projects/linux_client/obj/x86/Debug/msg_parser.o

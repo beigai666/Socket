@@ -75,17 +75,23 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClCompile Include="broadcast.c" />
     <ClCompile Include="message.c" />
     <ClCompile Include="msg_parser.c" />
+    <ClCompile Include="mul.c" />
     <ClCompile Include="server.c" />
     <ClCompile Include="tcp_client.c" />
     <ClCompile Include="tcp_server.c" />
+    <ClCompile Include="udp_server.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="broadcast.h" />
     <ClInclude Include="message.h" />
     <ClInclude Include="msg_parser.h" />
+    <ClInclude Include="mul.h" />
     <ClInclude Include="tcp_client.h" />
     <ClInclude Include="tcp_server.h" />
+    <ClInclude Include="udp_server.h" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

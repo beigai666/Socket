@@ -75,14 +75,18 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClCompile Include="broadcast.c" />
     <ClCompile Include="client.c" />
+    <ClCompile Include="mul.c" />
     <ClCompile Include="tcp_client.c" />
     <ClCompile Include="message.c" />
     <ClCompile Include="msg_parser.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="broadcast.h" />
     <ClInclude Include="message.h" />
     <ClInclude Include="msg_parser.h" />
+    <ClInclude Include="mul.h" />
     <ClInclude Include="tcp_client.h" />
   </ItemGroup>
   <ItemDefinitionGroup />

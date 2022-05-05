@@ -8,9 +8,13 @@
 #include <malloc.h>
 #include "message.h"
 #include "tcp_client.h"
-
+#include "broadcast.h"
+#include "mul.h"
 int main()
 {
+    mul();
+    broadcast();
+#if 0
     int i = 0;
     char* test = "D.T.Software";
     Message* pm = NULL;
@@ -38,7 +42,7 @@ int main()
     sleep(1);
     TcpClient_Del(client);
     getchar();
-
+#endif
     
 
     return 0;

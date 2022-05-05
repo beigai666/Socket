@@ -4,7 +4,8 @@
 #include <malloc.h>
 #include <string.h>
 #include "tcp_server.h"
-
+#include "broadcast.h"
+#include "mul.h"
 void EventListener(TcpClient* client, int evt)
 {
     if (evt == EVT_CONN)
@@ -49,6 +50,9 @@ void EventListener(TcpClient* client, int evt)
 
 int main()
 {
+    mul();
+    broadcast();
+#if 0
     TcpServer* server = TcpServer_New();
 
     if (server)
@@ -63,6 +67,7 @@ int main()
             TcpServer_DoWork(server);
         }
     }
-
+#endif
     return 0;
 }
+
