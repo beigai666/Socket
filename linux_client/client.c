@@ -12,11 +12,12 @@
 #include "mul.h"
 int main()
 {
-    mul();
-    broadcast();
-#if 0
+    //mul();
+    //broadcast();
+#if 1
     int i = 0;
     char* test = "D.T.Software";
+    //char* test = "D.T.So";
     Message* pm = NULL;
     TcpClient* client = TcpClient_New();
 
@@ -33,15 +34,14 @@ int main()
             pm = Message_New(128, 129, i, strlen(test), buf, 2);
 
             TcpClient_SendMsg(client, pm);
-
             free(pm);
         }
         //char buf[2] = { 'A',0};
         //TcpClient_SendOOB(client, buf);
     }
-    sleep(1);
-    TcpClient_Del(client);
     getchar();
+    TcpClient_Del(client);
+    
 #endif
     
 

@@ -148,7 +148,7 @@ void TcpClient_Close(TcpClient* client)
 
     if (c)
     {
-        printf("close %d", c->fd);
+        printf("close %d\n", c->fd);
         close(c->fd);
 
         c->fd = -1;

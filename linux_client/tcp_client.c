@@ -41,9 +41,10 @@ int TcpClient_SendMsg(TcpClient* client, Message* msg)
     Client *c = (Client*)client;
     if (c && msg)
     {
+        
         int len = Message_Size(msg);
         char* data = Message_H2N(msg);
-        ret = (send(c->fd, data, len, 0) != -1);
+        ret = (write(c->fd, data, len) != -1);
         Message_N2H(msg);
     }
     return ret;

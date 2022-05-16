@@ -29,11 +29,9 @@ void EventListener(TcpClient* client, int evt)
                 }
 
                 strcpy(s + m->index, m->payload);
-
                 if ((m->index + 1) == m->total)
                 {
-                    printf("Data: %s\n", s);
-
+                    printf("Data over: %s\n", s);
                     free(s);
                 }
 
@@ -50,9 +48,9 @@ void EventListener(TcpClient* client, int evt)
 
 int main()
 {
-    mul();
-    broadcast();
-#if 0
+    //mul();
+    //broadcast();
+#if 1
     TcpServer* server = TcpServer_New();
 
     if (server)
